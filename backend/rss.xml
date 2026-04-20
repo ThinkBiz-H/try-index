@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<rss version="2.0">
+<channel>
+<title>Indexer</title>
+
+  <item>
+    <link>https://example.com</link>
+  </item>
+
+  <item>
+    <link>https://ram.com</link>
+  </item>
+</channel>
+</rss>
