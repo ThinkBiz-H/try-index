@@ -11,20 +11,24 @@ export const submitUrl = async (req, res) => {
       return res.status(400).json({ error: "URL required" });
     }
 
+    // save in DB
     const newUrl = await Url.create({ url });
 
-    // 🔥 queue me daal (processing)
+    // 🔥 public link (IMPORTANT)
+    const publicLink = `https://try-index.onrender.com/link/${newUrl._id}`;
+
+    // 🔥 queue processing
     addToQueue(async () => {
-      await updateSitemap(url);
-      updateRSS(url);
+      await updateSitemap(publicLink);
+      updateRSS(publicLink);
 
       try {
-        // 🔥 Google ping
+        // Google ping
         await fetch(
           "https://www.google.com/ping?sitemap=https://try-index.onrender.com/sitemap.xml",
         );
 
-        // 🔥 Bing ping
+        // Bing ping
         await fetch(
           "https://www.bing.com/ping?sitemap=https://try-index.onrender.com/sitemap.xml",
         );
@@ -35,6 +39,7 @@ export const submitUrl = async (req, res) => {
       }
     });
 
+    // update status
     newUrl.status = "processed";
     await newUrl.save();
 
@@ -42,6 +47,7 @@ export const submitUrl = async (req, res) => {
       success: true,
       id: newUrl._id,
       status: newUrl.status,
+      link: publicLink, // 👈 frontend ke liye
     });
   } catch (err) {
     console.log(err);

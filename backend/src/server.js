@@ -1,13 +1,14 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
 
 import submitRoute from "./routes/submit.js";
 import linksRoute from "./routes/links.js";
 import statusRoute from "./routes/status.js";
 
 import { connectDB } from "./config/db.js";
-import Url from "./models/Url.js"; // ✅ DB import
+import Url from "./models/Url.js";
 
 dotenv.config();
 
@@ -20,6 +21,9 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
+// 🔥 IMPORTANT: static files serve (sitemap, rss)
+app.use(express.static(process.cwd()));
+
 // routes
 app.use("/api", submitRoute);
 app.use("/api", linksRoute);
@@ -30,7 +34,7 @@ app.get("/", (req, res) => {
   res.redirect("/live");
 });
 
-// 🔥 ✅ DB-based dynamic page
+// 🔥 dynamic page (DB based)
 app.get("/link/:id", async (req, res) => {
   try {
     const urlData = await Url.findById(req.params.id);
@@ -51,7 +55,6 @@ app.get("/link/:id", async (req, res) => {
           </a>
 
           <hr/>
-
           <a href="/live">All Links</a>
         </body>
       </html>
@@ -61,7 +64,7 @@ app.get("/link/:id", async (req, res) => {
   }
 });
 
-// 🔥 ✅ DB-based live page
+// 🔥 live page (DB based)
 app.get("/live", async (req, res) => {
   const urls = await Url.find().sort({ createdAt: -1 });
 
