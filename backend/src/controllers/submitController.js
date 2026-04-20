@@ -13,10 +13,26 @@ export const submitUrl = async (req, res) => {
 
     const newUrl = await Url.create({ url });
 
-    // queue me daal
+    // 🔥 queue me daal (processing)
     addToQueue(async () => {
       await updateSitemap(url);
       updateRSS(url);
+
+      try {
+        // 🔥 Google ping
+        await fetch(
+          "https://www.google.com/ping?sitemap=https://try-index.onrender.com/sitemap.xml",
+        );
+
+        // 🔥 Bing ping
+        await fetch(
+          "https://www.bing.com/ping?sitemap=https://try-index.onrender.com/sitemap.xml",
+        );
+
+        console.log("Ping sent 🚀");
+      } catch (err) {
+        console.log("Ping failed ❌", err);
+      }
     });
 
     newUrl.status = "processed";
